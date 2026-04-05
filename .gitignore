@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.sqlite3
+test.db
+
+# AWS / Elastic Beanstalk
+.elasticbeanstalk/
+*.zip
+
+# Logs
+*.log
+logs/
+
+# Secrets (keep .env.example, ignore actual .env)
+.env
