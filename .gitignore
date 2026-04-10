@@ -42,3 +42,4 @@ logs/
 
 # Secrets (keep .env.example, ignore actual .env)
 .env
+.claude
