@@ -36,6 +36,17 @@ test.db
 .elasticbeanstalk/
 *.zip
 
+# AWS credentials
+.aws/
+credentials
+aws-credentials*
+*.pem
+*.key
+*_rsa
+*_rsa.pub
+aws_access_key*
+aws_secret*
+
 # Logs
 *.log
 logs/

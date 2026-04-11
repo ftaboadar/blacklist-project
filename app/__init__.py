@@ -28,7 +28,7 @@ def create_app(config_name=None):
         db_name = os.environ.get('RDS_DB_NAME', 'blacklist_db')
 
         app.config['SQLALCHEMY_DATABASE_URI'] = (
-            f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+            f'postgresql+pg8000://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
         )
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
