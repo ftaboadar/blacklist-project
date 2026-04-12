@@ -1,0 +1,158 @@
+================================================================================
+EVIDENCIA - PRUEBAS NEWMAN DURANTE DESPLIEGUE INMUTABLE
+Entorno: Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com
+Fecha: 11 de abril de 2026
+Estrategia: Immutable
+================================================================================
+
+newman
+
+Blacklist API - MISO DevOps
+
+Iteration 1/15
+
+→ Health Check
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/ [200 OK, 197B, 254ms]
+  √  Status 200
+  √  Service healthy
+
+→ POST /blacklists - Agregar email
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [201 CREATED, 245B, 93ms]
+  √  Status 201 Created
+  √  Mensaje de confirmación
+
+→ POST /blacklists - Sin autenticación (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [401 UNAUTHORIZED, 232B, 87ms]
+  √  Status 401 Unauthorized
+
+→ POST /blacklists - Email duplicado (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [201 CREATED, 245B, 94ms]
+  1. Status 400 Bad Request
+
+→ GET /blacklists/:email - Email bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [200 OK, 232B, 133ms]
+  √  Status 200
+  √  Email está bloqueado
+  √  Tiene razón de bloqueo
+
+→ GET /blacklists/:email - Email no bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/legit@example.com [200 OK, 197B, 89ms]
+  √  Status 200
+  √  Email no está bloqueado
+  √  Sin razón de bloqueo
+
+→ GET /blacklists/:email - Sin autenticación (debe fallar)
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [401 UNAUTHORIZED, 232B, 88ms]
+  √  Status 401 Unauthorized
+
+Iteration 2/15
+
+→ Health Check
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/ [200 OK, 197B, 101ms]
+  √  Status 200
+  √  Service healthy
+
+→ POST /blacklists - Agregar email
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [201 CREATED, 245B, 89ms]
+  √  Status 201 Created
+  √  Mensaje de confirmación
+
+→ POST /blacklists - Sin autenticación (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [401 UNAUTHORIZED, 232B, 177ms]
+  √  Status 401 Unauthorized
+
+→ POST /blacklists - Email duplicado (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [201 CREATED, 245B, 88ms]
+  2. Status 400 Bad Request
+
+→ GET /blacklists/:email - Email bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [200 OK, 232B, 88ms]
+  √  Status 200
+  √  Email está bloqueado
+  √  Tiene razón de bloqueo
+
+→ GET /blacklists/:email - Email no bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/legit@example.com [200 OK, 197B, 102ms]
+  √  Status 200
+  √  Email no está bloqueado
+  √  Sin razón de bloqueo
+
+→ GET /blacklists/:email - Sin autenticación (debe fallar)
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [401 UNAUTHORIZED, 232B, 83ms]
+  √  Status 401 Unauthorized
+
+Iteration 3/15
+
+→ Health Check
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/ [200 OK, 197B, 84ms]
+  √  Status 200
+  √  Service healthy
+
+→ POST /blacklists - Agregar email
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [201 CREATED, 245B, 92ms]
+  √  Status 201 Created
+  √  Mensaje de confirmación
+
+→ POST /blacklists - Sin autenticación (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [401 UNAUTHORIZED, 232B, 85ms]
+  √  Status 401 Unauthorized
+
+→ POST /blacklists - Email duplicado (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [201 CREATED, 245B, 90ms]
+  3. Status 400 Bad Request
+
+→ GET /blacklists/:email - Email bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [200 OK, 232B, 94ms]
+  √  Status 200
+  √  Email está bloqueado
+  √  Tiene razón de bloqueo
+
+→ GET /blacklists/:email - Email no bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/legit@example.com [200 OK, 197B, 87ms]
+  √  Status 200
+  √  Email no está bloqueado
+  √  Sin razón de bloqueo
+
+→ GET /blacklists/:email - Sin autenticación (debe fallar)
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [401 UNAUTHORIZED, 232B, 86ms]
+  √  Status 401 Unauthorized
+
+Iteration 4/15  <-- NUEVA VERSION DESPLEGADA AQUI (Immutable swap)
+
+→ Health Check
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/ [200 OK, 197B, 85ms]
+  √  Status 200
+  √  Service healthy
+
+→ POST /blacklists - Agregar email
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [400 BAD REQUEST, 225B, 98ms]
+  4. Status 201 Created
+  √  Mensaje de confirmación
+
+→ POST /blacklists - Sin autenticación (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [401 UNAUTHORIZED, 232B, 86ms]
+  √  Status 401 Unauthorized
+
+→ POST /blacklists - Email duplicado (debe fallar)
+  POST http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists [400 BAD REQUEST, 225B, 98ms]
+  √  Status 400 Bad Request
+
+→ GET /blacklists/:email - Email bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [200 OK, 232B, 88ms]
+  √  Status 200
+  √  Email está bloqueado
+  √  Tiene razón de bloqueo
+
+→ GET /blacklists/:email - Email no bloqueado
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/legit@example.com [200 OK, 197B, 90ms]
+  √  Status 200
+  √  Email no está bloqueado
+  √  Sin razón de bloqueo
+
+→ GET /blacklists/:email - Sin autenticación (debe fallar)
+  GET http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com/blacklists/spam@example.com [401 UNAUTHORIZED, 232B, 83ms]
+  √  Status 401 Unauthorized
+
+[Iteraciones 5 a 15: comportamiento idéntico a iteración 4 - nueva versión activa]
+[Health Check: 200 OK en todas las iteraciones]
+[Zero downtime confirmado - ningún request falló por indisponibilidad del servicio]

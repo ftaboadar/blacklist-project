@@ -40,6 +40,11 @@ class BlacklistResource(Resource):
         else:
             ip_address = request.remote_addr or '0.0.0.0'
 
+        # Check for duplicate
+        existing = BlacklistEntry.query.filter_by(email=data['email']).first()
+        if existing:
+            return {'message': f"Email '{data['email']}' is already in the blacklist."}, 400
+
         # Create new blacklist entry
         new_entry = BlacklistEntry(
             email=data['email'],

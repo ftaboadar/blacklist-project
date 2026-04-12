@@ -6,7 +6,7 @@ import os
 from app import create_app
 from flask_jwt_extended import create_access_token
 
-app = create_app()
+app = create_app('testing')
 
 with app.app_context():
     token = create_access_token(identity='test-user')
