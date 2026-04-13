@@ -7,13 +7,13 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:5000",
-      "description": "URL base del servicio. En producción: URL del entorno Elastic Beanstalk"
+      "value": "http://Blacklist-env.eba-maga35ec.us-east-1.elasticbeanstalk.com",
+      "description": "URL del entorno Elastic Beanstalk desplegado en AWS"
     },
     {
       "key": "token",
-      "value": "",
-      "description": "JWT Bearer token. Generar con: $env:JWT_SECRET_KEY='<clave>' && python generate_token.py"
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjA0NDE3MiwianRpIjoiMzg0MjcyNmYtZWNiNi00NWNjLTkwYTItYmYzMjhmNmEwODI0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InR1dG9yIiwibmJmIjoxNzc2MDQ0MTcyLCJjc3JmIjoiMjQyYTYyODEtYzEwYS00MTk4LWE2MmItYjFiOTE1YmNjZGU3IiwiZXhwIjoxNzc4NjM2MTcyfQ.fdiBm_6D_si8XVw-9grYNoROpldhrw0yq-q7g4bNMq0",
+      "description": "JWT Bearer token válido por 30 días (expira 12 de mayo de 2026). Generar nuevo con: $env:JWT_SECRET_KEY='super-secret-key-devops-2026' && python generate_token.py"
     }
   ],
   "item": [
