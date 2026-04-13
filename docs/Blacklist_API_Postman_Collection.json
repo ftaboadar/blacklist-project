@@ -1,19 +1,19 @@
 {
   "info": {
     "name": "Blacklist API - MISO DevOps",
-    "description": "Colección de pruebas para el microservicio de lista negra global de emails",
+    "description": "Colección de pruebas para el microservicio de lista negra global de emails.\n\nVariables requeridas:\n- base_url: URL del entorno EB (ej: http://Blacklist-env.xxx.elasticbeanstalk.com)\n- token: JWT Bearer token generado con `python generate_token.py`\n\nUso con Newman:\n  npx newman run Blacklist_API_Postman_Collection.json \\\n    --env-var \"base_url=http://<URL>\" \\\n    --env-var \"token=<TOKEN>\" \\\n    --iteration-count 20 --delay-request 8000",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "base_url",
       "value": "http://localhost:5000",
-      "description": "URL base del servicio (cambiar por la URL de EB)"
+      "description": "URL base del servicio. En producción: URL del entorno Elastic Beanstalk"
     },
     {
       "key": "token",
       "value": "",
-      "description": "JWT Bearer token generado con generate_token.py"
+      "description": "JWT Bearer token. Generar con: $env:JWT_SECRET_KEY='<clave>' && python generate_token.py"
     }
   ],
   "item": [
@@ -24,6 +24,7 @@
           "listen": "test",
           "script": {
             "exec": [
+              "// Verifica que el servicio está activo y responde correctamente",
               "pm.test('Status 200', function() {",
               "    pm.response.to.have.status(200);",
               "});",
@@ -39,12 +40,23 @@
       "request": {
         "method": "GET",
         "url": "{{base_url}}/",
-        "description": "Verifica que el servicio está activo"
+        "description": "Endpoint de health check para AWS Elastic Beanstalk.\nNo requiere autenticación.\nRespuesta esperada: { status: 'healthy', service: 'blacklist-api' }"
       }
     },
     {
       "name": "POST /blacklists - Agregar email",
       "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Genera un email único por iteración para evitar duplicados",
+              "var timestamp = Date.now();",
+              "pm.variables.set('email_test', 'spam_' + timestamp + '@example.com');"
+            ],
+            "type": "text/javascript"
+          }
+        },
         {
           "listen": "test",
           "script": {
@@ -52,7 +64,7 @@
               "pm.test('Status 201 Created', function() {",
               "    pm.response.to.have.status(201);",
               "});",
-              "pm.test('Mensaje de confirmación', function() {",
+              "pm.test('Mensaje de confirmación contiene blacklist', function() {",
               "    var json = pm.response.json();",
               "    pm.expect(json.message).to.include('blacklist');",
               "});"
@@ -75,10 +87,10 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"spam@example.com\",\n  \"app_uuid\": \"uuid-app-test-001\",\n  \"blocked_reason\": \"Spam detectado en prueba de despliegue\"\n}"
+          "raw": "{\n  \"email\": \"{{email_test}}\",\n  \"app_uuid\": \"uuid-app-test-001\",\n  \"blocked_reason\": \"Spam detectado en prueba de despliegue\"\n}"
         },
         "url": "{{base_url}}/blacklists",
-        "description": "Agrega un email a la lista negra"
+        "description": "Agrega un email a la lista negra global.\nRequiere: Authorization Bearer token.\nEl email se genera dinámicamente por iteración (timestamp) para evitar duplicados.\nRespuesta esperada: 201 con mensaje de confirmación."
       }
     },
     {
@@ -88,6 +100,7 @@
           "listen": "test",
           "script": {
             "exec": [
+              "// El endpoint debe rechazar requests sin token",
               "pm.test('Status 401 Unauthorized', function() {",
               "    pm.response.to.have.status(401);",
               "});"
@@ -109,7 +122,7 @@
           "raw": "{\n  \"email\": \"test@example.com\",\n  \"app_uuid\": \"uuid-app-001\"\n}"
         },
         "url": "{{base_url}}/blacklists",
-        "description": "Verifica que el endpoint requiere autenticación"
+        "description": "Verifica que el endpoint POST requiere autenticación JWT.\nNo incluye header Authorization.\nRespuesta esperada: 401 Unauthorized."
       }
     },
     {
@@ -119,8 +132,13 @@
           "listen": "test",
           "script": {
             "exec": [
+              "// El mismo email no puede agregarse dos veces",
               "pm.test('Status 400 Bad Request', function() {",
               "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Mensaje indica que ya existe', function() {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.message).to.include('already');",
               "});"
             ],
             "type": "text/javascript"
@@ -141,10 +159,10 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"spam@example.com\",\n  \"app_uuid\": \"uuid-app-test-001\"\n}"
+          "raw": "{\n  \"email\": \"{{email_test}}\",\n  \"app_uuid\": \"uuid-app-test-001\"\n}"
         },
         "url": "{{base_url}}/blacklists",
-        "description": "Intenta agregar el mismo email dos veces"
+        "description": "Intenta agregar el mismo email que se registró en el request anterior.\nUsa la misma variable {{email_test}} generada en el prerequest.\nRespuesta esperada: 400 Bad Request con mensaje de duplicado."
       }
     },
     {
@@ -178,8 +196,8 @@
             "value": "Bearer {{token}}"
           }
         ],
-        "url": "{{base_url}}/blacklists/spam@example.com",
-        "description": "Consulta un email que está en la lista negra"
+        "url": "{{base_url}}/blacklists/{{email_test}}",
+        "description": "Consulta si un email está en la lista negra.\nUsa {{email_test}} que fue agregado en el primer request de esta iteración.\nRespuesta esperada: 200 con is_blacklisted: true y blocked_reason no nulo."
       }
     },
     {
@@ -214,7 +232,7 @@
           }
         ],
         "url": "{{base_url}}/blacklists/legit@example.com",
-        "description": "Consulta un email que NO está en la lista negra"
+        "description": "Consulta un email que nunca fue agregado a la lista negra.\nRespuesta esperada: 200 con is_blacklisted: false y blocked_reason: null."
       }
     },
     {
@@ -224,6 +242,7 @@
           "listen": "test",
           "script": {
             "exec": [
+              "// El endpoint GET también debe requerir autenticación",
               "pm.test('Status 401 Unauthorized', function() {",
               "    pm.response.to.have.status(401);",
               "});"
@@ -234,8 +253,8 @@
       ],
       "request": {
         "method": "GET",
-        "url": "{{base_url}}/blacklists/spam@example.com",
-        "description": "Verifica que el endpoint GET también requiere autenticación"
+        "url": "{{base_url}}/blacklists/legit@example.com",
+        "description": "Verifica que el endpoint GET también requiere autenticación JWT.\nNo incluye header Authorization.\nRespuesta esperada: 401 Unauthorized."
       }
     }
   ]
