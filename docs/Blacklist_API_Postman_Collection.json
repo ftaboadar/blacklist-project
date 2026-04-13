@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Blacklist API - MISO DevOps",
-    "description": "Colección de pruebas para el microservicio de lista negra global de emails.\n\nVariables requeridas:\n- base_url: URL del entorno EB (ej: http://Blacklist-env.xxx.elasticbeanstalk.com)\n- token: JWT Bearer token generado con `python generate_token.py`\n\nUso con Newman:\n  npx newman run Blacklist_API_Postman_Collection.json \\\n    --env-var \"base_url=http://<URL>\" \\\n    --env-var \"token=<TOKEN>\" \\\n    --iteration-count 20 --delay-request 8000",
+    "description": "Colección de pruebas para el microservicio de lista negra global de emails.\n\nVariables requeridas:\n- base_url: URL del entorno EB (ej: http://Blacklist-env.xxx.elasticbeanstalk.com)\n- token: JWT Bearer token generado con `python generate_token.py`\n\nUso con Newman:\n  npx newman run Blacklist_API_Postman_Collection.json \\\n    --env-var \"base_url=http://<URL>\" \\\n    --env-var \"auth_token=<TOKEN>\" \\\n    --iteration-count 20 --delay-request 8000",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -11,7 +11,7 @@
       "description": "URL del entorno Elastic Beanstalk desplegado en AWS"
     },
     {
-      "key": "token",
+      "key": "auth_token",
       "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NjA0NDE3MiwianRpIjoiMzg0MjcyNmYtZWNiNi00NWNjLTkwYTItYmYzMjhmNmEwODI0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InR1dG9yIiwibmJmIjoxNzc2MDQ0MTcyLCJjc3JmIjoiMjQyYTYyODEtYzEwYS00MTk4LWE2MmItYjFiOTE1YmNjZGU3IiwiZXhwIjoxNzc4NjM2MTcyfQ.fdiBm_6D_si8XVw-9grYNoROpldhrw0yq-q7g4bNMq0",
       "description": "JWT Bearer token válido por 30 días (expira 12 de mayo de 2026). Generar nuevo con: $env:JWT_SECRET_KEY='super-secret-key-devops-2026' && python generate_token.py"
     }
@@ -78,7 +78,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -150,7 +150,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{auth_token}}"
           },
           {
             "key": "Content-Type",
@@ -193,7 +193,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{auth_token}}"
           }
         ],
         "url": "{{base_url}}/blacklists/{{email_test}}",
@@ -228,7 +228,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{auth_token}}"
           }
         ],
         "url": "{{base_url}}/blacklists/legit@example.com",
