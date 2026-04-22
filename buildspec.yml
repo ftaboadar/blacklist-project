@@ -1,0 +1,49 @@
+version: 0.2
+
+env:
+  variables:
+    FLASK_ENV: testing
+    JWT_SECRET_KEY: test-secret-key
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install pytest pytest-cov
+
+  pre_build:
+    commands:
+      - echo "Ejecutando tests..."
+      - python -m pytest tests/ -v --tb=short --junitxml=reports/test-results.xml --cov=app --cov-report=xml:reports/coverage.xml --cov-report=term-missing
+      - echo "Tests completados."
+
+  build:
+    commands:
+      - echo "Empaquetando aplicacion para Elastic Beanstalk..."
+      - zip -r app-$CODEBUILD_BUILD_NUMBER.zip . -x "*.git*" -x ".venv/*" -x "__pycache__/*" -x "*.pyc" -x "reports/*" -x "tests/*"
+
+  post_build:
+    commands:
+      - echo "Build completado. Artefacto listo."
+
+reports:
+  pytest-reports:
+    files:
+      - reports/test-results.xml
+    file-format: JUNITXML
+  coverage-reports:
+    files:
+      - reports/coverage.xml
+    file-format: COBERTURAXML
+
+artifacts:
+  files:
+    - app-$CODEBUILD_BUILD_NUMBER.zip
+  discard-paths: yes
+
+cache:
+  paths:
+    - /root/.cache/pip/**/*
