@@ -373,10 +373,3 @@ class TestModelAndSchema:
         schema = BlacklistCreateSchema()
         result = schema.load({'email': 'valid@example.com', 'app_uuid': 'uuid-1'})
         assert result['blocked_reason'] is None
-
-
-class TestForzarFallo:
-    """Test temporal para verificar que el pipeline se detiene ante fallos."""
-
-    def test_fallo_intencional(self):
-        assert False, "FALLO INTENCIONAL - eliminar este test antes del merge"
