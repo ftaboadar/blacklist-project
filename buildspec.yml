@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   variables:
-    FLASK_ENV: testing
-    JWT_SECRET_KEY: test-secret-key
+    IMAGE_REPO_NAME: blacklist-app
+    IMAGE_TAG: latest
 
 phases:
   install:
@@ -16,18 +16,31 @@ phases:
 
   pre_build:
     commands:
-      - echo "Ejecutando tests..."
-      - python -m pytest tests/ -v --tb=short --junitxml=reports/test-results.xml --cov=app --cov-report=xml:reports/coverage.xml --cov-report=term-missing
-      - echo "Tests completados."
+      - echo "Ejecutando pruebas unitarias..."
+      - FLASK_ENV=testing JWT_SECRET_KEY=test-secret-key python -m pytest tests/ -v --tb=short --junitxml=reports/test-results.xml --cov=app --cov-report=xml:reports/coverage.xml --cov-report=term-missing
+      - echo "Pruebas completadas exitosamente."
+      - echo "Iniciando sesion en Amazon ECR..."
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - ECR_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI
 
   build:
     commands:
-      - echo "Empaquetando aplicacion para Elastic Beanstalk..."
-      - zip -r app-$CODEBUILD_BUILD_NUMBER.zip . -x "*.git*" -x ".venv/*" -x "__pycache__/*" -x "*.pyc" -x "reports/*" -x "tests/*"
+      - echo "Build iniciado en `date`"
+      - echo "Construyendo la imagen Docker..."
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $ECR_URI/$IMAGE_REPO_NAME:$IMAGE_TAG
 
   post_build:
     commands:
-      - echo "Build completado. Artefacto listo."
+      - echo "Build completado en `date`"
+      - echo "Enviando imagen Docker a ECR..."
+      - docker push $ECR_URI/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo "Escribiendo archivos de definicion de imagen..."
+      - mkdir -p reports
+      - printf '[{"name":"blacklist-app","imageUri":"%s"}]' "$ECR_URI/$IMAGE_REPO_NAME:$IMAGE_TAG" > imagedefinitions.json
+      - printf '{"ImageURI":"%s"}' "$ECR_URI/$IMAGE_REPO_NAME:$IMAGE_TAG" > imageDetail.json
+      - cat imagedefinitions.json
 
 reports:
   pytest-reports:
@@ -41,8 +54,17 @@ reports:
 
 artifacts:
   files:
-    - app-$CODEBUILD_BUILD_NUMBER.zip
-  discard-paths: yes
+    - "**/*"
+    - imagedefinitions.json
+    - imageDetail.json
+  secondary-artifacts:
+    DefinitionArtifact:
+      files:
+        - appspec.json
+        - taskdef.json
+    ImageArtifact:
+      files:
+        - imageDetail.json
 
 cache:
   paths:

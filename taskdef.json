@@ -1,0 +1,50 @@
+{
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "portMappings": [
+        {
+          "hostPort": 5000,
+          "protocol": "tcp",
+          "containerPort": 5000
+        }
+      ],
+      "image": "<IMAGE1_NAME>",
+      "essential": true,
+      "name": "blacklist-app",
+      "environment": [
+        {
+          "name": "RDS_HOSTNAME",
+          "value": "<RDS_HOSTNAME>"
+        },
+        {
+          "name": "RDS_PORT",
+          "value": "5432"
+        },
+        {
+          "name": "RDS_DB_NAME",
+          "value": "blacklist_db"
+        },
+        {
+          "name": "RDS_USERNAME",
+          "value": "<RDS_USERNAME>"
+        },
+        {
+          "name": "RDS_PASSWORD",
+          "value": "<RDS_PASSWORD>"
+        },
+        {
+          "name": "JWT_SECRET_KEY",
+          "value": "<JWT_SECRET_KEY>"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "family": "blacklist-task"
+}
