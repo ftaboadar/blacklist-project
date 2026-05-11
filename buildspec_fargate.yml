@@ -1,0 +1,80 @@
+version: 0.2
+
+# buildspec para pipeline Fargate: tests -> docker build -> ECR push -> artifacts
+# Variables de entorno requeridas en el proyecto CodeBuild:
+#   ECR_REPO_NAME  : nombre del repositorio ECR (ej: blacklist)
+#   CONTAINER_NAME : nombre del contenedor en la task definition (ej: blacklist)
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
+    FLASK_ENV: testing
+    JWT_SECRET_KEY: test-secret-key
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install pytest pytest-cov
+
+  pre_build:
+    commands:
+      - echo "Ejecutando tests unitarios..."
+      - mkdir -p reports
+      - python -m pytest tests/ -v --tb=short --junitxml=reports/test-results.xml --cov=app --cov-report=xml:reports/coverage.xml --cov-report=term-missing
+      - echo "Tests completados exitosamente."
+      - echo "Iniciando sesion en Amazon ECR..."
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - ECR_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO_NAME
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+      - echo "URI=$ECR_URI  TAG=$IMAGE_TAG"
+
+  build:
+    commands:
+      - echo "Construyendo imagen Docker..."
+      - docker build --platform linux/amd64 -t $ECR_REPO_NAME:$IMAGE_TAG .
+      - docker tag $ECR_REPO_NAME:$IMAGE_TAG $ECR_URI:$IMAGE_TAG
+      - docker tag $ECR_REPO_NAME:$IMAGE_TAG $ECR_URI:latest
+
+  post_build:
+    commands:
+      - echo "Publicando imagen en ECR..."
+      - docker push $ECR_URI:$IMAGE_TAG
+      - docker push $ECR_URI:latest
+      - echo "Generando archivos de artefactos..."
+      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $ECR_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '{"ImageURI":"%s"}' $ECR_URI:$IMAGE_TAG > imageDetail.json
+      - cat imagedefinitions.json
+      - echo "Build y publicacion completados."
+
+reports:
+  pytest-reports:
+    files:
+      - reports/test-results.xml
+    file-format: JUNITXML
+  coverage-reports:
+    files:
+      - reports/coverage.xml
+    file-format: COBERTURAXML
+
+artifacts:
+  files:
+    - '**/*'
+    - imagedefinitions.json
+    - imageDetail.json
+  secondary-artifacts:
+    DefinitionArtifact:
+      files:
+        - appspec.json
+        - taskdef.json
+    ImageArtifact:
+      files:
+        - imageDetail.json
+
+cache:
+  paths:
+    - /root/.cache/pip/**/*
