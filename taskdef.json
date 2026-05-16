@@ -17,7 +17,7 @@
         { "name": "RDS_PORT",                 "value": "5432" },
         { "name": "RDS_DB_NAME",              "value": "blacklist_db" },
         { "name": "RDS_USERNAME",             "value": "postgres" },
-        { "name": "RDS_PASSWORD",             "value": "postgres" },
+        { "name": "RDS_PASSWORD",             "value": "postgres123" },
         { "name": "JWT_SECRET_KEY",           "value": "super-secret-key-devops-2026" },
         { "name": "NEW_RELIC_LICENSE_KEY",    "value": "NEW_RELIC_KEY_PLACEHOLDER" },
         { "name": "NEW_RELIC_APP_NAME",       "value": "Blacklist API" },
