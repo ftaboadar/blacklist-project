@@ -26,6 +26,12 @@ services:
       RDS_USERNAME: postgres
       RDS_PASSWORD: postgres
       JWT_SECRET_KEY: test-secret-key-local
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY:-}
+      NEW_RELIC_APP_NAME: "Blacklist API (local)"
+      NEW_RELIC_CONFIG_FILE: newrelic.ini
+      NEW_RELIC_LOG: stdout
+      NEW_RELIC_LOG_LEVEL: info
+      NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: "true"
     depends_on:
       db:
         condition: service_healthy

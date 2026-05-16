@@ -13,12 +13,18 @@
         }
       ],
       "environment": [
-        { "name": "RDS_HOSTNAME", "value": "blacklist-db.c09gwegcmhri.us-east-1.rds.amazonaws.com" },
-        { "name": "RDS_PORT",     "value": "5432" },
-        { "name": "RDS_DB_NAME",  "value": "blacklist_db" },
-        { "name": "RDS_USERNAME", "value": "postgres" },
-        { "name": "RDS_PASSWORD", "value": "postgres" },
-        { "name": "JWT_SECRET_KEY", "value": "super-secret-key-devops-2026" }
+        { "name": "RDS_HOSTNAME",             "value": "blacklist-db.c09gwegcmhri.us-east-1.rds.amazonaws.com" },
+        { "name": "RDS_PORT",                 "value": "5432" },
+        { "name": "RDS_DB_NAME",              "value": "blacklist_db" },
+        { "name": "RDS_USERNAME",             "value": "postgres" },
+        { "name": "RDS_PASSWORD",             "value": "postgres" },
+        { "name": "JWT_SECRET_KEY",           "value": "super-secret-key-devops-2026" },
+        { "name": "NEW_RELIC_LICENSE_KEY",    "value": "NEW_RELIC_KEY_PLACEHOLDER" },
+        { "name": "NEW_RELIC_APP_NAME",       "value": "Blacklist API" },
+        { "name": "NEW_RELIC_CONFIG_FILE",    "value": "newrelic.ini" },
+        { "name": "NEW_RELIC_LOG",            "value": "stdout" },
+        { "name": "NEW_RELIC_LOG_LEVEL",      "value": "info" },
+        { "name": "NEW_RELIC_DISTRIBUTED_TRACING_ENABLED", "value": "true" }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",

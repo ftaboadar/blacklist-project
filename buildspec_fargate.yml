@@ -10,6 +10,8 @@ env:
     AWS_DEFAULT_REGION: us-east-1
     FLASK_ENV: testing
     JWT_SECRET_KEY: test-secret-key
+  # NEW_RELIC_LICENSE_KEY se define como variable de entorno en el proyecto CodeBuild
+  # (no se guarda en el repositorio por seguridad)
 
 phases:
   install:
@@ -45,6 +47,8 @@ phases:
       - echo "Publicando imagen en ECR..."
       - docker push $ECR_URI:$IMAGE_TAG
       - docker push $ECR_URI:latest
+      - echo "Inyectando New Relic license key en taskdef.json..."
+      - sed -i "s/NEW_RELIC_KEY_PLACEHOLDER/$NEW_RELIC_LICENSE_KEY/g" taskdef.json
       - echo "Generando archivos de artefactos..."
       - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $ECR_URI:$IMAGE_TAG > imagedefinitions.json
       - printf '{"ImageURI":"%s"}' $ECR_URI:$IMAGE_TAG > imageDetail.json
