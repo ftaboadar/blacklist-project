@@ -13,6 +13,23 @@ ma = Marshmallow()
 jwt = JWTManager()
 
 
+def _ensure_database_exists(user, password, host, port, db_name):
+    """Crea la base de datos si no existe, conectando primero a 'postgres'."""
+    try:
+        import pg8000.dbapi as pg
+        conn = pg.connect(user=user, password=password, host=host,
+                          port=int(port), database='postgres')
+        conn.autocommit = True
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (db_name,))
+        if not cur.fetchone():
+            cur.execute(f'CREATE DATABASE "{db_name}"')
+        cur.close()
+        conn.close()
+    except Exception:
+        pass  # Si falla, SQLAlchemy reportará el error real al iniciar
+
+
 def create_app(config_name=None):
     app = Flask(__name__)
 
@@ -26,6 +43,8 @@ def create_app(config_name=None):
         db_host = os.environ.get('RDS_HOSTNAME', 'localhost')
         db_port = os.environ.get('RDS_PORT', '5432')
         db_name = os.environ.get('RDS_DB_NAME', 'blacklist_db')
+
+        _ensure_database_exists(db_user, db_password, db_host, db_port, db_name)
 
         app.config['SQLALCHEMY_DATABASE_URI'] = (
             f'postgresql+pg8000://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
