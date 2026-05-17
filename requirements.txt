@@ -6,6 +6,6 @@ marshmallow>=3.20.1
 Flask-JWT-Extended>=4.5.3
 Werkzeug>=2.3.7
 gunicorn>=21.2.0
-pg8000>=1.31.2
+psycopg2-binary>=2.9.9
 python-dotenv>=1.0.0
 newrelic>=9.0.0
